@@ -64,7 +64,7 @@ router.get("", checkAuth, (req, res, next) => {
     });
   });
 
-router.post('', checkAuth, multer({storage: storage}).array("file")/*multer({storage: storage}).single("file")*/, (req, res, next) => {
+router.post('', checkAuth, multer({storage: storage}).array("file"), (req, res, next) => {
     console.log('POST RECEIVED')
     //console.log(req.files)
     const job = new Job({
@@ -73,10 +73,11 @@ router.post('', checkAuth, multer({storage: storage}).array("file")/*multer({sto
         sourceLang: req.body.sourceLang,
         reqLang: req.body.reqLang,
         status: "CREATED",//req.body.status,
-        employeeId: null,
+        employeeId: '',
         creationDate: req.body.creationDate,
-        startDate: null,
-        completionDate: null
+        startDate: '',
+        completionDate: '',
+        reviewBy: ''
     })
 
     const folder = job.id;
@@ -85,7 +86,7 @@ router.post('', checkAuth, multer({storage: storage}).array("file")/*multer({sto
     req.files.forEach(file => {
         console.log(file.originalname)
         let publicUrl = '';
-        const blob = gc.bucket(bucketName).file(folder+"/" + file.originalname);
+        const blob = gc.bucket(bucketName).file(folder+"/" + "original_" + file.originalname);
         const blobStream = blob.createWriteStream({
             resumable: false
         });
@@ -119,50 +120,7 @@ router.post('', checkAuth, multer({storage: storage}).array("file")/*multer({sto
         })
     });
 
-/*
-    req.files.forEach(file => {
-        console.log(file.originalname)
-    });
-    let publicUrl = '';
-
-    const blob = gc.bucket(bucketName).file(folder+"/" + file.originalname);
-
-    const blobStream = blob.createWriteStream({
-        resumable: false
-    });
-
-    blobStream.on("error", err => {
-        next(err);
-    });
-
-    blobStream.on('finish', () => {
-        // The public URL can be used to directly access the file via HTTP.
-        publicUrl = util.format(
-            `https://storage.googleapis.com/${bucketName}/${blob.name}`
-        );
-
-        console.log(util.format(`https://storage.googleapis.com/${bucketName}/${folder}`))
-        //res.status(200).send(publicUrl);
-        //console.log(publicUrl)
-        
-        
-
-        job.save().then(createdjob =>{
-            res.status(201).json({
-                message: "job created",
-                job: {
-                    ...createdjob,
-                    id: createdjob._id
-                }
-            });
-        }).catch(error => {
-            res.status(500).json({
-                message: error
-            })
-        });
-    });
-    blobStream.end(file.buffer);
-*/});
+});
 
 router.delete('/:id',  (req, res) =>{
     Job.deleteOne({_id: req.params.id}).then(result =>{

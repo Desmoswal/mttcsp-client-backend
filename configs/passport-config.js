@@ -3,7 +3,8 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { ExtractJwt } = require("passport-jwt");
-const User = require("../models/client");
+const User = require("../models/employee");
+//const User = require("../models/client");
 const dotenv = require("dotenv").config();
 
 passport.use('local', new LocalStrategy({
@@ -31,14 +32,14 @@ passport.use('jwt', new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),
     secretOrKey: process.env.JWT_SECRET
 }, async (payload, done) => {
+    console.log('jwt')
     try {
         const user = await User.findById(payload.sub);
-        console.log(user)
         if(!user){
             console.log("no user found")
             return done(null,false);
         }
-
+        console.log(user)
         done(null, user);
     } catch (error) {
         done(error,false)

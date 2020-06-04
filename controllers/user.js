@@ -6,7 +6,7 @@ const Language = require("../models/language")
 
 signToken = user => {
     return jwt.sign({
-        iss: 'mttcsp-client-backend',
+        iss: 'mttcsp-auth-server',
         sub: user.id,
         iat: new Date().getTime(),
         exp: new Date().setDate(new Date().getDate() + 1)
@@ -67,6 +67,7 @@ exports.userLogin = (req, res)=>{
 }
 
 exports.userProfile = (req, res) => {
+    console.log(req)
     res.json({user: req.user})
 }
 
